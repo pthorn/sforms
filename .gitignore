@@ -1,0 +1,9 @@
+/build
+/dist
+/.idea
+/.coverage
+/doc/build/output
+*.pyc
+*.orig
+*.egg-info
+
