@@ -52,9 +52,9 @@ def _colander_args(name=_nothing, default=_nothing, missing=_nothing, validators
     return args
 
 
-class SmallForm(object):
+class SmallForm(object):  # TODO csrf http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/sessions.html
 
-    def __init__(self, validators=None):
+    def __init__(self, validators=None, request=None):
         self._fields = dict()
         self._fields_list = []
         self._schema = colander.SchemaNode(colander.Mapping(), **_colander_args(validators=validators or _nothing))
@@ -274,5 +274,6 @@ class IntegerField(Field):
             colander.Int(),
             u'',  # default
             _nothing if required else None,  # missing
-            validators
+            validators,
+            Input()
         )
