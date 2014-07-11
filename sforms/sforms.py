@@ -54,13 +54,15 @@ def _colander_args(name=_nothing, default=_nothing, missing=_nothing, validators
 
 class SmallForm(object):  # TODO csrf http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/sessions.html
 
-    def __init__(self, validators=None, request=None):
+    def __init__(self, validators=None, request=None, check_csrf=True):
         self._fields = dict()
         self._fields_list = []
         self._schema = colander.SchemaNode(colander.Mapping(), **_colander_args(validators=validators or _nothing))
         self._cstruct = dict()
         self._appstruct = dict()
         self._errors = dict()
+        self._request = request
+        self._check_csrf = check_csrf
 
     def from_object(self, obj=None, **kwargs):
         if not obj:
@@ -124,6 +126,14 @@ class SmallForm(object):  # TODO csrf http://docs.pylonsproject.org/projects/pyr
         else:
             raise RuntimeError('expected list or dict')
 
+        if self._check_csrf and not self._request:
+            log.warn('check_csrf is True but no request has been passed to the form')
+
+        if self._check_csrf and self._request:
+            if self._cstruct.get('csrf_token') != self._request.session.get_csrf_token():
+                from pyramid.httpexceptions import HTTPBadRequest
+                raise HTTPBadRequest()
+
         try:
             self._appstruct = self._schema.deserialize(self._cstruct)
             self._errors = dict()
@@ -179,6 +189,16 @@ class SmallForm(object):  # TODO csrf http://docs.pylonsproject.org/projects/pyr
     @property
     def fields(self):
         return self._fields_list
+
+    def render_csrf_field(self):
+        """
+        <form>
+            ${c.form.render_csrf_field() | n}
+        </form
+        Note: will throw an exception if request was not passed to the constructor
+        """
+        token = self._request.session.get_csrf_token()
+        return u'<input type="hidden" name="csrf_token" value="%s">' % token
 
     def _add_field(self, field):
         self._fields[field.name] = field
