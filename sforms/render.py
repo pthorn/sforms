@@ -7,6 +7,9 @@ from htmlgen import Tag, Text, RawText
 
 
 class Input(object):
+    """
+    <input type="<type>">
+    """
 
     def __init__(self, type='text'):
         self.type = type
@@ -17,17 +20,26 @@ class Input(object):
 
 
 class Textarea(object):
-
-    def __init__(self):
-        pass
+    """
+    <textarea>
+    """
 
     def render(self, field, rargs):
-        return Tag('textarea', type=self.type, name=field.name, value=field.cvalue, **rargs).render()
+        return Tag('textarea', field.cvalue, name=field.name, **rargs).render()
 
 
 class Select(object):
+    """
+    <select>
+      <option>
+    </select>
+    """
 
     def __init__(self, options, multiple=False):
+        """
+        :param options: array of tuples (value, label)
+        :param multiple: boolean
+        """
         self.multiple = multiple
         self.options = options
 
@@ -38,15 +50,24 @@ class Select(object):
 
 
 class RadioButtons(object):
-    pass
+
+    def __init__(self, options):
+        """
+        :param options: array of tuples (value, label)
+        """
+        self.options = options
+
+    def render(self, field, rargs):
+        inputs = [Tag('li').add([Tag('input', type='radio', name=field.name, value=opt[0], checked=(opt[0] == field.cvalue)), Text(opt[1])]) for opt in self.options]
+        return Tag('ul', **rargs).add(inputs).render()
 
 
 class Checkbox(object):
-    pass
+    """
+    """
 
-
-class CheckBoxes(object):
-    pass
+    def render(self, field, rargs):
+        return Tag('input', type='checkbox', name=field.name, value=u'true', checked=(field.cvalue == 'true')).render()
 
 
 if __name__ == '__main__':
