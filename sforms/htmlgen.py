@@ -51,6 +51,8 @@ class Tag(object):
     def _render_attrs(self):
         strings = []
         for k, v in self.attrs.iteritems():
+            if k.endswith('_'):    # class_='foo'
+                k = k.rstrip('_')
             if k in boolean_attrs:
                 if v:
                     strings.append(html_escape(k))
