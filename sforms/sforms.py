@@ -190,6 +190,10 @@ class SmallForm(object):  # TODO csrf http://docs.pylonsproject.org/projects/pyr
     def fields(self):
         return self._fields_list
 
+    @property
+    def request(self):
+        return self._request
+
     def render_csrf_field(self):
         """
         <form>
@@ -256,6 +260,14 @@ class Field(object):
     @property
     def error(self):
         return self._form._errors.get(self._name)
+
+    @property
+    def form(self):
+        return self._form
+
+    @property
+    def request(self):
+        return self.form.request
 
     def iclass(self, invalid_class, valid_class=u''):
         return valid_class if self.valid else invalid_class
