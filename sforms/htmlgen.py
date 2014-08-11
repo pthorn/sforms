@@ -50,14 +50,19 @@ class Tag(object):
 
     def _render_attrs(self):
         strings = []
+
         for k, v in self.attrs.iteritems():
             if k.endswith('_'):    # class_='foo'
                 k = k.rstrip('_')
+
+            k = k.replace('_', '-')  # e.g. data_foo => data-foo
+
             if k in boolean_attrs:
                 if v:
                     strings.append(html_escape(k))
             else:
                 strings.append(u'%s="%s"' % (html_escape(k), html_escape(v)))
+
         return u'' if len(strings) == 0 else u' ' + u' '.join(strings)
 
     def add(self, child):
